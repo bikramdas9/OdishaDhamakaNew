@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ShoppingCart, User, Menu, X, LogOut, LayoutDashboard } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { useCartStore } from '../store/cartStore';
@@ -11,6 +11,7 @@ export default function Navbar() {
   const { user, clearAuth, isAdmin } = useAuthStore();
   const itemCount = useCartStore((s) => s.itemCount());
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = async () => {
     try {
@@ -19,6 +20,18 @@ export default function Navbar() {
       clearAuth();
       toast.success('Logged out');
       navigate('/');
+    }
+  };
+
+  const scrollToSection = (id: string) => {
+    setMobileOpen(false);
+    if (location.pathname !== '/') {
+      navigate('/');
+      setTimeout(() => {
+        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    } else {
+      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
@@ -31,9 +44,9 @@ export default function Navbar() {
 
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-6">
-          <Link to="/#menu" className="text-sm font-medium text-gray-600 hover:text-brand-500 transition-colors">Menu</Link>
-          <Link to="/#our-story" className="text-sm font-medium text-gray-600 hover:text-brand-500 transition-colors">Our Story</Link>
-          <Link to="/#contact" className="text-sm font-medium text-gray-600 hover:text-brand-500 transition-colors">Contact</Link>
+          <button onClick={() => scrollToSection('menu')} className="text-sm font-medium text-gray-600 hover:text-brand-500 transition-colors">Menu</button>
+          <button onClick={() => scrollToSection('our-story')} className="text-sm font-medium text-gray-600 hover:text-brand-500 transition-colors">Our Story</button>
+          <button onClick={() => scrollToSection('contact')} className="text-sm font-medium text-gray-600 hover:text-brand-500 transition-colors">Contact</button>
         </div>
 
         <div className="flex items-center gap-3">
@@ -75,9 +88,9 @@ export default function Navbar() {
       {/* Mobile menu */}
       {mobileOpen && (
         <div className="md:hidden border-t border-gray-100 bg-white px-4 pb-4 space-y-3 animate-fade-in">
-          <Link to="/#menu" className="block py-2 text-sm font-medium text-gray-700" onClick={() => setMobileOpen(false)}>Menu</Link>
-          <Link to="/#our-story" className="block py-2 text-sm font-medium text-gray-700" onClick={() => setMobileOpen(false)}>Our Story</Link>
-          <Link to="/#contact" className="block py-2 text-sm font-medium text-gray-700" onClick={() => setMobileOpen(false)}>Contact</Link>
+          <button onClick={() => scrollToSection('menu')} className="block py-2 text-sm font-medium text-gray-700">Menu</button>
+          <button onClick={() => scrollToSection('our-story')} className="block py-2 text-sm font-medium text-gray-700">Our Story</button>
+          <button onClick={() => scrollToSection('contact')} className="block py-2 text-sm font-medium text-gray-700">Contact</button>
           {user ? (
             <>
               {isAdmin() && <Link to="/admin" className="block py-2 text-sm font-medium text-brand-600" onClick={() => setMobileOpen(false)}>Admin Dashboard</Link>}

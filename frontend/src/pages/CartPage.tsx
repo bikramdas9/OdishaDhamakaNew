@@ -21,13 +21,15 @@ interface RazorpayOptions {
   image: string;
   order_id: string;
   handler: (response: { razorpay_payment_id: string; razorpay_order_id: string; razorpay_signature: string }) => void;
-  prefill: { name: string; contact: string };
+  prefill: { name: string; contact: string; email?: string };
   theme: { color: string };
   modal: { ondismiss: () => void };
+  config?: { display: { blocks: Record<string, unknown>; sequence: string[]; preferences: { show_default_blocks: boolean } } };
 }
 
 interface RazorpayInstance {
   open: () => void;
+  on: (event: string, handler: (response: { error: { code: string; description: string; source: string; step: string; reason: string } }) => void) => void;
 }
 
 export default function CartPage() {
@@ -92,7 +94,12 @@ export default function CartPage() {
         modal: { ondismiss: () => toast('Payment cancelled') },
       };
 
-      new window.Razorpay(options).open();
+      const rzp = new window.Razorpay(options);
+      rzp.on('payment.failed', (response) => {
+        console.error('Razorpay payment failed:', response.error);
+        toast.error(`Payment failed: ${response.error.description}`);
+      });
+      rzp.open();
     } catch (err: unknown) {
       const apiErr = err as { response?: { data?: { message?: string } } };
       toast.error(apiErr?.response?.data?.message ?? 'Failed to create order');
