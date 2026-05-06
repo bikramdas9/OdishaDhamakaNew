@@ -34,14 +34,17 @@ export const sendOTP = async (mobile: string): Promise<{ success: boolean; messa
     await redis.set(otpKey, otp, { ex: CACHE_TTL.OTP });
     await redis.set(attemptsKey, (attempts || 0) + 1, { ex: 600 });
 
-    await axios.get('https://www.fast2sms.com/dev/bulkV2', {
+    const message = `Your Odisha Dhamaka OTP is ${otp}. Valid for 5 minutes. Do not share with anyone.`;
+    const response = await axios.get('https://www.fast2sms.com/dev/bulkV2', {
       params: {
         authorization: process.env.FAST2SMS_API_KEY,
-        variables_values: otp,
-        route: 'otp',
+        message,
+        language: 'english',
+        route: 'q',
         numbers: mobile,
       },
     });
+    console.log('Fast2SMS response:', JSON.stringify(response.data));
     return { success: true, message: 'OTP sent successfully' };
   } catch (err: unknown) {
     const axiosErr = err as { response?: { status: number; data: unknown } };
