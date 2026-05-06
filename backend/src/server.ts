@@ -13,6 +13,9 @@ import orderRoutes from './routes/orders';
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Trust Render/Vercel reverse proxy so rate limiters use real client IP
+app.set('trust proxy', 1);
+
 // Security headers
 app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' },
