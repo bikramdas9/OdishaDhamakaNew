@@ -32,7 +32,8 @@ router.post('/send-otp', otpLimiter, validate(mobileSchema), async (req: Request
   const { mobile } = req.body;
   const result = await sendOTP(mobile);
   if (!result.success) {
-    return res.status(429).json(result);
+    const status = result.message.includes('Too many') ? 429 : 500;
+    return res.status(status).json(result);
   }
   res.json(result);
 });

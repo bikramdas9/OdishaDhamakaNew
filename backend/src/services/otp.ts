@@ -43,8 +43,13 @@ export const sendOTP = async (mobile: string): Promise<{ success: boolean; messa
       },
     });
     return { success: true, message: 'OTP sent successfully' };
-  } catch (err) {
-    console.error('Fast2SMS error:', err);
+  } catch (err: unknown) {
+    const axiosErr = err as { response?: { status: number; data: unknown } };
+    if (axiosErr.response) {
+      console.error('Fast2SMS error:', axiosErr.response.status, JSON.stringify(axiosErr.response.data));
+    } else {
+      console.error('Fast2SMS error:', err);
+    }
     return { success: false, message: 'Failed to send OTP. Please try again.' };
   }
 };
