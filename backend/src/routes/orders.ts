@@ -36,13 +36,13 @@ router.post('/', authenticate, orderLimiter, validate(createOrderSchema), async 
 
     // Validate all items exist and are available
     for (const item of items) {
-      const menuItem = menuItems.find((m) => m.id === item.menu_item_id);
+      const menuItem = menuItems.find((m: { id: string; name: string; is_available: boolean }) => m.id === item.menu_item_id);
       if (!menuItem) throw new Error(`Item ${item.menu_item_id} not found`);
       if (!menuItem.is_available) throw new Error(`${menuItem.name} is currently unavailable`);
     }
 
     const totalAmount = items.reduce((sum: number, item: { menu_item_id: string; quantity: number }) => {
-      const menuItem = menuItems.find((m) => m.id === item.menu_item_id)!;
+      const menuItem = menuItems.find((m: { id: string; price: string }) => m.id === item.menu_item_id)!;
       return sum + parseFloat(menuItem.price) * item.quantity;
     }, 0);
 
@@ -62,7 +62,7 @@ router.post('/', authenticate, orderLimiter, validate(createOrderSchema), async 
 
     // Insert order items
     for (const item of items) {
-      const menuItem = menuItems.find((m) => m.id === item.menu_item_id)!;
+      const menuItem = menuItems.find((m: { id: string; name: string; price: string }) => m.id === item.menu_item_id)!;
       await client.query(
         `INSERT INTO order_items (order_id, menu_item_id, name, price, quantity) VALUES ($1, $2, $3, $4, $5)`,
         [order.id, item.menu_item_id, menuItem.name, menuItem.price, item.quantity]
