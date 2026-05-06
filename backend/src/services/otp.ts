@@ -70,7 +70,6 @@ export const verifyOTP = async (mobile: string, otp: string): Promise<boolean> =
 
   const otpKey = `${OTP_PREFIX}${mobile}`;
   const storedOTP = await redis.get<string>(otpKey);
-  console.log(`[OTP verify] mobile=${mobile} entered="${otp}" stored="${storedOTP}" type=${typeof storedOTP}`);
   if (!storedOTP || String(storedOTP) !== String(otp)) return false;
   await redis.del(otpKey);
   return true;
